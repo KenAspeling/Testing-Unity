@@ -9,6 +9,7 @@ public class Obstacle : MonoBehaviour
     public float minSpeed = 50f;
     public float maxSpeed = 250f;
     public float maxSpin = 10f;
+    public GameObject hit;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -29,6 +30,13 @@ public class Obstacle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        Vector2 contact = collision.GetContact(0).point;
         
+        Instantiate(hit, contact, Quaternion.identity);
     }
 }
