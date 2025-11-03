@@ -19,6 +19,11 @@ public class PlayerController : MonoBehaviour
     private Label highscoreText;
     public GameObject explosion;
     private Button restartButton;
+    public GameObject laserPrefab;
+    public float shootForce = 1000f;
+    public Transform firepoint;
+    public float shootDelay = 0.3f;
+    private float timePass = 0f;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,6 +42,7 @@ public class PlayerController : MonoBehaviour
     {
         updateScore();
         movePlayer();
+        shootLaser();
     }
 
     void updateScore()
@@ -45,7 +51,7 @@ public class PlayerController : MonoBehaviour
         score = Mathf.FloorToInt(elapsedTime * scoreMultiplier);
         scoreText.text = "Score: " + score;
     }
-    
+
     void movePlayer()
     {
         if (Mouse.current.leftButton.isPressed)
@@ -68,6 +74,27 @@ public class PlayerController : MonoBehaviour
             Booster.SetActive(false);
         }
     }
+    
+    void shootLaser()
+    {
+        timePass += Time.deltaTime;
+        if (Keyboard.current.spaceKey.isPressed && (timePass>shootDelay))
+        {
+            Vector3 spawnPos = firepoint ? firepoint.position : transform.position;
+            Quaternion spawnRot = firepoint ? firepoint.rotation : transform.rotation;
+
+            // Create the laser
+            GameObject laser = Instantiate(laserPrefab, spawnPos, spawnRot);
+
+            // Add force in the forward direction
+            Rigidbody2D rb = laser.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.AddForce(firepoint.up * shootForce, ForceMode2D.Impulse);
+            }
+            timePass = 0;
+        }
+    }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -81,8 +108,6 @@ public class PlayerController : MonoBehaviour
             PlayerPrefs.Save();
             highscoreText.text = "High Score: " + score;
         }
-
-        
     }
 
     void ReloadScene()
